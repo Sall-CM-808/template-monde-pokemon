@@ -1,0 +1,95 @@
+<!-- Page d'accueil -->
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+  
+  <!-- Hero Section -->
+  <section class="py-6 sm:py-8 px-3 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <span class="text-blue-600 dark:text-blue-400">Monde</span> & <span class="text-yellow-500 dark:text-yellow-400">Pokémons</span>
+      </h1>
+      <p class="text-gray-600 dark:text-gray-300 mb-2">
+        Cliquez sur un pays pour voir ses informations et sa météo en temps réel
+      </p>
+    </div>
+  </section>
+
+  <!-- Carte interactive -->
+  <section class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pb-6 sm:pb-8">
+    <div class="h-[360px] sm:h-[500px] lg:h-[600px] rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700">
+      <app-carte-monde (paysSelectionne)="onPaysSelectionne($event)"></app-carte-monde>
+    </div>
+    
+    <!-- Légende -->
+    <div class="mt-4 flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-6 text-sm text-gray-500 dark:text-gray-400">
+      <div class="flex items-center gap-2">
+        <span class="w-4 h-4 bg-blue-500/40 border border-blue-600 rounded"></span>
+        <span>Survolez un pays</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-4 h-4 bg-yellow-500/70 border border-yellow-500 rounded"></span>
+        <span>Cliquez pour les détails</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cartes modules -->
+  <section class="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pb-10 sm:pb-12">
+    <div class="grid md:grid-cols-2 gap-6">
+      
+      <!-- Carte Pays -->
+      <a routerLink="/pays" 
+         class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:border-green-500 transition-all duration-300">
+        <div class="p-6 flex items-center gap-4">
+          <div class="text-4xl">🌍</div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-green-600 dark:group-hover:text-green-400 transition">
+              Tous les pays
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+              Liste complète, recherche et filtres
+            </p>
+          </div>
+          <svg class="w-5 h-5 ml-auto text-gray-500 group-hover:text-green-600 dark:group-hover:text-green-400 group-hover:translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+      <!-- Carte Pokémons -->
+      <a routerLink="/pokemons" 
+         class="group bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:border-yellow-500 transition-all duration-300">
+        <div class="p-6 flex items-center gap-4">
+          <div class="text-4xl">⚡</div>
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition">
+              200 Pokémons
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 text-sm">
+              Stats, types, capacités et plus
+            </p>
+          </div>
+          <svg class="w-5 h-5 ml-auto text-gray-500 group-hover:text-yellow-600 dark:group-hover:text-yellow-400 group-hover:translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Footer info -->
+  <section class="border-t border-gray-200 dark:border-gray-700 py-6 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <p class="text-gray-500 text-sm">
+        Angular 19 • Tailwind CSS • Leaflet • REST Countries • Open-Meteo • PokéAPI
+      </p>
+    </div>
+  </section>
+</div>
+
+<!-- Modal détails pays -->
+<app-modal-pays 
+  [donnees]="paysModal" 
+  [visible]="modalVisible"
+  (fermerModal)="fermerModal()">
+</app-modal-pays>

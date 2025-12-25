@@ -1,0 +1,121 @@
+<!-- Détail d'un pokémon -->
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-6 sm:py-8 px-3 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Bouton retour -->
+    <button (click)="retour()" 
+            class="flex items-center text-yellow-600 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-200 mb-6 transition">
+      <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Retour à la liste
+    </button>
+
+    <!-- Loader -->
+    @if (chargement) {
+      <app-loader message="Chargement du Pokémon..."></app-loader>
+    }
+
+    <!-- Erreur -->
+    @if (erreur && !chargement) {
+      <app-erreur message="Impossible de charger ce Pokémon" [afficherRetry]="false"></app-erreur>
+    }
+
+    <!-- Contenu -->
+    @if (!chargement && !erreur && pokemon) {
+      <!-- En-tête -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden mb-6">
+        <div class="md:flex">
+          <!-- Image -->
+          <div class="md:w-1/2 bg-gradient-to-br from-yellow-50 to-orange-50 p-5 sm:p-8 flex flex-col items-center justify-center">
+            <img [src]="imageAffichee" 
+                 [alt]="pokemon.nom"
+                 class="w-48 h-48 sm:w-64 sm:h-64 object-contain">
+            
+            <!-- Bouton shiny -->
+            @if (pokemon.imageShiny) {
+              <button (click)="toggleShiny()" 
+                      class="mt-4 px-4 py-2 text-sm rounded-full transition"
+                      [class.bg-yellow-500]="imageShiny"
+                      [class.text-white]="imageShiny"
+                      [class.bg-gray-200]="!imageShiny"
+                      [class.text-gray-700]="!imageShiny">
+                {{ imageShiny ? 'Version normale' : 'Version shiny' }}
+              </button>
+            }
+          </div>
+          
+          <!-- Infos principales -->
+          <div class="p-4 sm:p-6 md:w-1/2">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-gray-400 text-lg">{{ formatId(pokemon.id) }}</span>
+              <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ pokemon.nom }}</h1>
+            </div>
+            
+            <!-- Types -->
+            <div class="flex gap-2 mb-6">
+              @for (t of pokemon.types; track t) {
+                <span class="px-3 py-1 rounded-full text-white text-sm font-medium" [class]="couleurType(t)">
+                  {{ t }}
+                </span>
+              }
+            </div>
+            
+            <!-- Caractéristiques -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+              <div>
+                <span class="text-sm text-gray-500 dark:text-gray-400">Taille</span>
+                <p class="font-medium text-lg text-gray-900 dark:text-gray-100">{{ pokemon.taille }} m</p>
+              </div>
+              <div>
+                <span class="text-sm text-gray-500 dark:text-gray-400">Poids</span>
+                <p class="font-medium text-lg text-gray-900 dark:text-gray-100">{{ pokemon.poids }} kg</p>
+              </div>
+            </div>
+            
+            <!-- Capacités -->
+            <div>
+              <span class="text-sm text-gray-500 dark:text-gray-400">Capacités</span>
+              <div class="flex flex-wrap gap-2 mt-1">
+                @for (c of pokemon.capacites; track c) {
+                  <span class="px-2 py-1 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded text-sm text-gray-700 dark:text-gray-200">
+                    {{ c }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-4 sm:p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Statistiques</h2>
+        
+        <div class="space-y-4">
+          @for (s of pokemon.stats; track s.nom) {
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm text-gray-600 dark:text-gray-300">{{ s.nom }}</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ s.valeur }}</span>
+              </div>
+              <div class="w-full bg-gray-200 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-full h-2">
+                <div class="h-2 rounded-full transition-all duration-500" 
+                     [class]="couleurStat(s.valeur)"
+                     [style.width.%]="(s.valeur / 255) * 100"></div>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <!-- Total -->
+        <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex justify-between">
+            <span class="font-medium text-gray-600 dark:text-gray-300">Total</span>
+            <span class="font-bold text-lg text-yellow-600 dark:text-yellow-400">{{ totalStats }}</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

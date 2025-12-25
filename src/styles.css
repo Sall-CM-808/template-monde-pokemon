@@ -1,1 +1,67 @@
 /* You can add global styles to this file, and also import other style files */
+
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Styles carte Leaflet */
+.pays-tooltip {
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.pays-tooltip::before {
+  border-top-color: rgba(0, 0, 0, 0.85);
+}
+
+/* Tooltip en thème clair */
+:root:not(.dark) .pays-tooltip {
+  background: rgba(255, 255, 255, 0.95);
+  color: #111827;
+  border: 1px solid rgba(17, 24, 39, 0.15);
+}
+
+:root:not(.dark) .pays-tooltip::before {
+  border-top-color: rgba(255, 255, 255, 0.95);
+}
+
+/* Popup Leaflet */
+.pays-popup .leaflet-popup-content-wrapper {
+  border-radius: 14px;
+}
+
+.pays-popup .leaflet-popup-content {
+  margin: 12px;
+}
+
+/* Popup Leaflet en thème clair */
+:root:not(.dark) .leaflet-popup-content-wrapper {
+  background: white;
+  color: #111827;
+}
+
+/* Popup Leaflet en thème sombre */
+:root.dark .leaflet-popup-content-wrapper {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+:root.dark .leaflet-popup-tip {
+  background: #111827;
+}
+
+/* S'assurer que les popups Leaflet passent au-dessus des tuiles */
+.leaflet-popup {
+  z-index: 1200;
+}
+
+/* Garder les bords arrondis sans overflow-hidden côté conteneur */
+.leaflet-container {
+  border-radius: 1rem;
+}

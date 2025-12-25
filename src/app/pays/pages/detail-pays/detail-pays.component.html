@@ -1,0 +1,187 @@
+<!-- Detail d'un pays -->
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-6 sm:py-8 px-3 sm:px-6 lg:px-8">
+  <div class="max-w-4xl mx-auto">
+    
+    <!-- Bouton retour -->
+    <button (click)="retour()" 
+            class="flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white mb-6 transition">
+      <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Retour a la liste
+    </button>
+
+    <!-- Loader -->
+    @if (chargement) {
+      <app-loader message="Chargement du pays..."></app-loader>
+    }
+
+    <!-- Erreur -->
+    @if (erreur && !chargement) {
+      <app-erreur message="Impossible de charger ce pays" [afficherRetry]="false"></app-erreur>
+    }
+
+    <!-- Contenu -->
+    @if (!chargement && !erreur && pays) {
+      <!-- En-tete -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden mb-6">
+        <div class="md:flex">
+          <!-- Drapeau -->
+          <div class="md:w-1/3 bg-gray-100">
+            <img [src]="pays.drapeau" 
+                 [alt]="'Drapeau ' + pays.nom"
+                 class="w-full h-44 sm:h-48 md:h-full object-cover">
+          </div>
+          
+          <!-- Infos principales -->
+          <div class="p-4 sm:p-6 md:w-2/3">
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">{{ pays.nom }}</h1>
+            <p class="text-gray-600 dark:text-gray-300 mb-4">{{ pays.nomOfficiel }}</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div>
+                <span class="text-sm text-gray-500 dark:text-gray-400">Capitale</span>
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ pays.capitale[0] || 'N/A' }}</p>
+              </div>
+              <div>
+                <span class="text-sm text-gray-500 dark:text-gray-400">Region</span>
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ pays.region }}</p>
+              </div>
+              <div>
+                <span class="text-sm text-gray-500 dark:text-gray-400">Sous-region</span>
+                <p class="font-medium text-gray-900 dark:text-gray-100">{{ pays.sousRegion || 'N/A' }}</p>
+              </div>
+              <div>
+                <span class="text-sm text-gray-500 dark:text-gray-400">Code</span>
+                <p class="font-medium text-blue-600 dark:text-blue-400">{{ pays.code }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+        <!-- Population et superficie -->
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-4 sm:p-6">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Statistiques</h2>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Population</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ formatNombre(pays.population) }} habitants</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Superficie</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ formatNombre(pays.superficie) }} km2</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Densite</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ (pays.population / pays.superficie) | number:'1.0-0' }} hab/km2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coordonnees -->
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Coordonnees</h2>
+          
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Latitude</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ pays.latitude.toFixed(4) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Longitude</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ pays.longitude.toFixed(4) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 dark:text-gray-300">Fuseau horaire</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ pays.fuseauxHoraires[0] || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meteo -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-4 sm:p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Meteo actuelle</h2>
+        
+        @if (chargementMeteo) {
+          <div class="flex items-center justify-center py-8">
+            <div class="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+            <span class="ml-3 text-gray-600 dark:text-gray-300">Chargement meteo...</span>
+          </div>
+        }
+
+        @if (erreurMeteo && !chargementMeteo) {
+          <div class="text-center py-8 text-gray-600 dark:text-gray-300">
+            <p>Donnees meteo non disponibles</p>
+          </div>
+        }
+
+        @if (meteo && !chargementMeteo) {
+          <div class="flex flex-col md:flex-row items-center justify-between">
+            <!-- Temperature -->
+            <div class="flex items-center mb-4 md:mb-0">
+              <div>
+                <p class="text-4xl font-bold text-gray-900 dark:text-white">{{ meteo.temperature }}°C</p>
+                <p class="text-gray-600 dark:text-gray-300">{{ meteo.description }}</p>
+                <p class="text-xs text-gray-400 mt-1">{{ meteo.heure }}</p>
+              </div>
+            </div>
+            
+            <!-- Details -->
+            <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-300">Vent</span>
+                <span class="font-medium ml-4 text-gray-900 dark:text-gray-100">{{ meteo.vent }} km/h</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-300">Direction</span>
+                <span class="font-medium ml-4 text-gray-900 dark:text-gray-100">{{ meteo.directionVent }}°</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-300">Code</span>
+                <span class="font-medium ml-4 text-gray-900 dark:text-gray-100">{{ meteo.code }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Infos supplementaires -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm p-6">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Informations</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <!-- Langues -->
+          <div>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Langues</span>
+            <p class="font-medium text-gray-900 dark:text-gray-100">
+              @if (pays.langues.length > 0) {
+                {{ pays.langues.join(', ') }}
+              } @else {
+                N/A
+              }
+            </p>
+          </div>
+          
+          <!-- Monnaies -->
+          <div>
+            <span class="text-sm text-gray-500 dark:text-gray-400">Monnaies</span>
+            <p class="font-medium text-gray-900 dark:text-gray-100">
+              @if (pays.monnaies.length > 0) {
+                @for (m of pays.monnaies; track m.code) {
+                  {{ m.nom }} ({{ m.symbole || m.code }}){{ !$last ? ', ' : '' }}
+                }
+              } @else {
+                N/A
+              }
+            </p>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
