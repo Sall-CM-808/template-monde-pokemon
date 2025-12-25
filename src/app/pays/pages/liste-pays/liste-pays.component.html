@@ -105,7 +105,9 @@
               <div class="h-28 sm:h-32 bg-gray-100 overflow-hidden">
                 <img [src]="p.drapeau" 
                      [alt]="'Drapeau ' + p.nom"
-                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                     loading="lazy"
+                     decoding="async">
               </div>
               
               <!-- Infos -->

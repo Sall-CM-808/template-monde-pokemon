@@ -30,7 +30,9 @@
           <div class="md:w-1/2 bg-gradient-to-br from-yellow-50 to-orange-50 p-5 sm:p-8 flex flex-col items-center justify-center">
             <img [src]="imageAffichee" 
                  [alt]="pokemon.nom"
-                 class="w-48 h-48 sm:w-64 sm:h-64 object-contain">
+                 class="w-48 h-48 sm:w-64 sm:h-64 object-contain"
+                 decoding="async"
+                 fetchpriority="high">
             
             <!-- Bouton shiny -->
             @if (pokemon.imageShiny) {

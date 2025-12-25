@@ -1,6 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, PLATFORM_ID, EventEmitter, Output } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 // Interface pour les propriétés GeoJSON
@@ -44,7 +43,6 @@ export interface PaysSelectionne {
   `]
 })
 export class CarteMondeComponent implements OnInit, OnDestroy {
-  private http = inject(HttpClient);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
@@ -53,21 +51,49 @@ export class CarteMondeComponent implements OnInit, OnDestroy {
   private L: any = null;
   private map: any = null;
   private geoJsonLayer: any = null;
+  private intersectionObserver: IntersectionObserver | null = null;
   chargement = true;
 
   private readonly GEOJSON_URL = 'https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson';
+  private readonly GEOJSON_CACHE_KEY = 'geojson:countries:v1';
 
   ngOnInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => this.initialiserCarte(), 100);
+      this.initialiserQuandVisible();
     }
   }
 
   ngOnDestroy(): void {
+    if (this.intersectionObserver) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = null;
+    }
     if (this.map) {
       this.map.remove();
       this.map = null;
     }
+  }
+
+  private initialiserQuandVisible(): void {
+    // Init seulement quand le composant est réellement visible (perf + LCP)
+    const host = document.querySelector('app-carte-monde');
+    if (!host || !('IntersectionObserver' in window)) {
+      setTimeout(() => this.initialiserCarte(), 0);
+      return;
+    }
+
+    this.intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          this.intersectionObserver?.disconnect();
+          this.intersectionObserver = null;
+          setTimeout(() => this.initialiserCarte(), 0);
+        }
+      },
+      { root: null, threshold: 0.1 },
+    );
+
+    this.intersectionObserver.observe(host);
   }
 
   private async initialiserCarte(): Promise<void> {
@@ -89,16 +115,26 @@ export class CarteMondeComponent implements OnInit, OnDestroy {
       zoom: 2,
       minZoom: 2,
       maxZoom: 6,
+      preferCanvas: true,
       worldCopyJump: true,
       maxBounds: [[-90, -180], [90, 180]],
       maxBoundsViscosity: 1.0
     });
 
-    // Ajouter le fond de carte sombre style CheckPoint
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    // Ajouter le fond de carte (léger) selon le thème
+    const isDark = document.documentElement.classList.contains('dark');
+    const tilesUrl = isDark
+      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+
+    L.tileLayer(tilesUrl, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
-      maxZoom: 20
+      minZoom: 2,
+      maxZoom: 6,
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      keepBuffer: 2
     }).addTo(this.map);
 
     // Charger les pays
@@ -106,31 +142,76 @@ export class CarteMondeComponent implements OnInit, OnDestroy {
   }
 
   private chargerPays(): void {
-    this.http.get<any>(this.GEOJSON_URL).subscribe({
-      next: (geojson) => {
+    void this.chargerPaysOptimise();
+  }
+
+  private async chargerPaysOptimise(): Promise<void> {
+    try {
+      const geojson = await this.getGeoJsonAvecCache(this.GEOJSON_URL, this.GEOJSON_CACHE_KEY);
+      this.ajouterPays(geojson);
+      this.chargement = false;
+      return;
+    } catch {
+      // Fallback avec un autre GeoJSON
+      try {
+        const geojson = await this.getGeoJsonAvecCache(
+          'https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json',
+          'geojson:countries:fallback:v1',
+        );
         this.ajouterPays(geojson);
+      } finally {
         this.chargement = false;
-      },
-      error: () => {
-        // Fallback avec un autre GeoJSON
-        this.http.get<any>('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json').subscribe({
-          next: (geojson) => {
-            this.ajouterPays(geojson);
-            this.chargement = false;
-          },
-          error: () => {
-            this.chargement = false;
-          }
-        });
       }
+    }
+  }
+
+  private async getGeoJsonAvecCache(url: string, cacheKey: string): Promise<any> {
+    // 1) Cache API (rapide en prod, évite re-download)
+    if ('caches' in window) {
+      const cache = await caches.open('app-cache-v1');
+      const req = new Request(url, { cache: 'force-cache' });
+      const cached = await cache.match(req);
+      if (cached) return cached.json();
+
+      const res = await fetch(req);
+      if (!res.ok) throw new Error('GeoJSON fetch failed');
+      // Clone pour la mise en cache
+      await cache.put(req, res.clone());
+      return res.json();
+    }
+
+    // 2) Fallback sans Cache API
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch {
+        // ignore
+      }
+    }
+
+    const geojson = await fetch(url).then((r) => {
+      if (!r.ok) throw new Error('GeoJSON fetch failed');
+      return r.json();
     });
+
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(geojson));
+    } catch {
+      // Le GeoJSON peut être trop gros pour localStorage selon le navigateur
+    }
+
+    return geojson;
   }
 
   private ajouterPays(geojson: any): void {
     const L = this.L;
     if (!this.map) return;
 
+    const renderer = L.canvas({ padding: 0.5 });
+
     this.geoJsonLayer = L.geoJSON(geojson, {
+      renderer,
       style: () => this.styleNormal(),
       onEachFeature: (feature: any, layer: any) => {
         const props = feature.properties;
