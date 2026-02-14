@@ -21,27 +21,69 @@
         </a>
         <a routerLink="/pays" 
            routerLinkActive="bg-white/20"
-           class="text-gray-700 dark:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition">
+           class="text-gray-700 dark:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition relative">
           Pays
+          @if (authSvc.estConnecte() && favorisSvc.nombrePaysFavoris() > 0) {
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {{ favorisSvc.nombrePaysFavoris() }}
+            </span>
+          }
         </a>
         <a routerLink="/pokemons" 
            routerLinkActive="bg-white/20"
-           class="text-gray-700 dark:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition">
+           class="text-gray-700 dark:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition relative">
           Pokémons
+          @if (authSvc.estConnecte() && favorisSvc.nombrePokemonsFavoris() > 0) {
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {{ favorisSvc.nombrePokemonsFavoris() }}
+            </span>
+          }
         </a>
 
         <div class="h-6 w-px bg-gray-200 dark:bg-white/20 mx-1"></div>
 
-        <a routerLink="/connexion"
+        <a routerLink="/favoris" 
            routerLinkActive="bg-white/20"
-           class="text-blue-700 border border-blue-600 bg-white hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition dark:text-white dark:border-white/30 dark:bg-white/10 dark:hover:bg-white/20">
-          Connexion
+           class="text-gray-700 dark:text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition relative flex items-center gap-1">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" [class.fill-current]="authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0" [class.text-red-500]="authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0" fill="none" stroke="currentColor">
+            @if (authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0) {
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            }
+          </svg>
+          Favoris
+          @if (authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0) {
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {{ favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris() }}
+            </span>
+          }
         </a>
-        <a routerLink="/inscription"
-           routerLinkActive="bg-white/20"
-           class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition dark:bg-yellow-500 dark:hover:bg-yellow-600">
-          Inscription
-        </a>
+
+        <div class="h-6 w-px bg-gray-200 dark:bg-white/20 mx-1"></div>
+
+        @if (authSvc.estConnecte()) {
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-gray-700 dark:text-white font-medium">
+              {{ authSvc.utilisateurActuel()?.prenom }} {{ authSvc.utilisateurActuel()?.nom }}
+            </span>
+            <button (click)="deconnexion()"
+                    class="px-3 py-2 rounded-md text-sm font-medium border border-red-600 text-red-600 dark:text-red-400 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 transition">
+              Déconnexion
+            </button>
+          </div>
+        } @else {
+          <a routerLink="/connexion"
+             routerLinkActive="bg-white/20"
+             class="text-blue-700 border border-blue-600 bg-white hover:bg-blue-50 px-3 py-2 rounded-md text-sm font-medium transition dark:text-white dark:border-white/30 dark:bg-white/10 dark:hover:bg-white/20">
+            Connexion
+          </a>
+          <a routerLink="/inscription"
+             routerLinkActive="bg-white/20"
+             class="text-white bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium transition dark:bg-yellow-500 dark:hover:bg-yellow-600">
+            Inscription
+          </a>
+        }
 
         <!-- Toggle thème -->
         <button (click)="basculerTheme()"
@@ -100,30 +142,75 @@
         <a routerLink="/pays" 
            (click)="fermerMenu()"
            routerLinkActive="bg-white/20"
-           class="text-gray-700 dark:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition">
+           class="text-gray-700 dark:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition relative">
           Pays
+          @if (authSvc.estConnecte() && favorisSvc.nombrePaysFavoris() > 0) {
+            <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {{ favorisSvc.nombrePaysFavoris() }}
+            </span>
+          }
         </a>
         <a routerLink="/pokemons" 
            (click)="fermerMenu()"
            routerLinkActive="bg-white/20"
-           class="text-gray-700 dark:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition">
+           class="text-gray-700 dark:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition relative">
           Pokémons
+          @if (authSvc.estConnecte() && favorisSvc.nombrePokemonsFavoris() > 0) {
+            <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {{ favorisSvc.nombrePokemonsFavoris() }}
+            </span>
+          }
         </a>
 
         <div class="h-px bg-gray-200 dark:bg-white/20 my-2"></div>
 
-        <a routerLink="/connexion" 
+        <a routerLink="/favoris" 
            (click)="fermerMenu()"
            routerLinkActive="bg-white/20"
-           class="text-blue-700 border border-blue-600 bg-white hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium transition dark:text-white dark:border-white/30 dark:bg-white/10 dark:hover:bg-white/20">
-          Connexion
+           class="text-gray-700 dark:text-white block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition relative flex items-center gap-2">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" [class.fill-current]="authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0" [class.text-red-500]="authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0" fill="none" stroke="currentColor">
+            @if (authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0) {
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            } @else {
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            }
+          </svg>
+          Favoris
+          @if (authSvc.estConnecte() && (favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris()) > 0) {
+            <span class="absolute top-2 right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+              {{ favorisSvc.nombrePokemonsFavoris() + favorisSvc.nombrePaysFavoris() }}
+            </span>
+          }
         </a>
-        <a routerLink="/inscription" 
-           (click)="fermerMenu()"
-           routerLinkActive="bg-white/20"
-           class="text-white bg-blue-600 hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium transition dark:bg-yellow-500 dark:hover:bg-yellow-600">
-          Inscription
-        </a>
+
+        <div class="h-px bg-gray-200 dark:bg-white/20 my-2"></div>
+
+        @if (authSvc.estConnecte()) {
+          <div class="px-3 py-2 bg-gray-100 dark:bg-gray-900 rounded-md">
+            <p class="text-sm text-gray-500 dark:text-gray-400">Connecté en tant que</p>
+            <p class="font-medium text-gray-900 dark:text-white">
+              {{ authSvc.utilisateurActuel()?.prenom }} {{ authSvc.utilisateurActuel()?.nom }}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ authSvc.utilisateurActuel()?.email }}</p>
+          </div>
+          <button (click)="deconnexion()"
+                  class="w-full text-left px-3 py-2 rounded-md text-base font-medium border border-red-600 text-red-600 dark:text-red-400 dark:border-red-500 hover:bg-red-600 hover:text-white dark:hover:bg-red-500 transition">
+            Déconnexion
+          </button>
+        } @else {
+          <a routerLink="/connexion" 
+             (click)="fermerMenu()"
+             routerLinkActive="bg-white/20"
+             class="text-blue-700 border border-blue-600 bg-white hover:bg-blue-50 block px-3 py-2 rounded-md text-base font-medium transition dark:text-white dark:border-white/30 dark:bg-white/10 dark:hover:bg-white/20">
+            Connexion
+          </a>
+          <a routerLink="/inscription" 
+             (click)="fermerMenu()"
+             routerLinkActive="bg-white/20"
+             class="text-white bg-blue-600 hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium transition dark:bg-yellow-500 dark:hover:bg-yellow-600">
+            Inscription
+          </a>
+        }
       </div>
     </div>
   }

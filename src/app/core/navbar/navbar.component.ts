@@ -1,16 +1,20 @@
 import { Component, OnInit, inject, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser, CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { FavorisService } from '../../shared/services/favoris.service';
+import { AuthService } from '../../shared/services/auth.service';
 
 // Composant de navigation principale
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './navbar.component.html'
 })
 export class NavbarComponent implements OnInit {
   private platformId = inject(PLATFORM_ID);
+  favorisSvc = inject(FavorisService);
+  authSvc = inject(AuthService);
 
   // Menu ouvert/fermé (mobile)
   menuOuvert = false;
@@ -52,5 +56,10 @@ export class NavbarComponent implements OnInit {
     const root = document.documentElement;
     if (this.themeSombre) root.classList.add('dark');
     else root.classList.remove('dark');
+  }
+
+  deconnexion(): void {
+    this.authSvc.deconnexion();
+    this.fermerMenu();
   }
 }

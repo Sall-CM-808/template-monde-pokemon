@@ -6,6 +6,7 @@ import { PaysService } from '../../services/pays.service';
 import { Pays } from '../../models/pays.model';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
 import { ErreurComponent } from '../../../shared/erreur/erreur.component';
+import { FavorisService } from '../../../shared/services/favoris.service';
 
 // Page liste des pays
 @Component({
@@ -16,6 +17,7 @@ import { ErreurComponent } from '../../../shared/erreur/erreur.component';
 })
 export class ListePaysComponent implements OnInit {
   private paysSvc = inject(PaysService);
+  favorisSvc = inject(FavorisService);
 
   // Données
   pays: Pays[] = [];
@@ -110,5 +112,11 @@ export class ListePaysComponent implements OnInit {
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + ' M';
     if (n >= 1_000) return (n / 1_000).toFixed(1) + ' K';
     return n.toString();
+  }
+
+  basculerFavori(event: Event, code: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.favorisSvc.basculerPaysFavori(code);
   }
 }

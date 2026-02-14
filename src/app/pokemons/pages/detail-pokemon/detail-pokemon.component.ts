@@ -5,6 +5,7 @@ import { PokemonService } from '../../services/pokemon.service';
 import { Pokemon } from '../../models/pokemon.model';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
 import { ErreurComponent } from '../../../shared/erreur/erreur.component';
+import { FavorisService } from '../../../shared/services/favoris.service';
 
 // Page détail d'un pokémon
 @Component({
@@ -16,6 +17,7 @@ import { ErreurComponent } from '../../../shared/erreur/erreur.component';
 export class DetailPokemonComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private pokemonSvc = inject(PokemonService);
+  favorisSvc = inject(FavorisService);
 
   // Données
   pokemon: Pokemon | null = null;
@@ -107,5 +109,11 @@ export class DetailPokemonComponent implements OnInit {
   get totalStats(): number {
     if (!this.pokemon) return 0;
     return this.pokemon.stats.reduce((acc, s) => acc + s.valeur, 0);
+  }
+
+  basculerFavori(): void {
+    if (this.pokemon) {
+      this.favorisSvc.basculerPokemonFavori(this.pokemon.id);
+    }
   }
 }

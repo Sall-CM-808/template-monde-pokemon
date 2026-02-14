@@ -6,6 +6,7 @@ import { PokemonService } from '../../services/pokemon.service';
 import { PokemonResume } from '../../models/pokemon.model';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
 import { ErreurComponent } from '../../../shared/erreur/erreur.component';
+import { FavorisService } from '../../../shared/services/favoris.service';
 
 // Page liste des pokémons
 @Component({
@@ -16,6 +17,7 @@ import { ErreurComponent } from '../../../shared/erreur/erreur.component';
 })
 export class ListePokemonsComponent implements OnInit {
   private pokemonSvc = inject(PokemonService);
+  favorisSvc = inject(FavorisService);
 
   // Données
   pokemons: PokemonResume[] = [];
@@ -98,5 +100,11 @@ export class ListePokemonsComponent implements OnInit {
   // Formate l'ID avec zéros (ex: #001)
   formatId(id: number): string {
     return '#' + id.toString().padStart(3, '0');
+  }
+
+  basculerFavori(event: Event, id: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.favorisSvc.basculerPokemonFavori(id);
   }
 }

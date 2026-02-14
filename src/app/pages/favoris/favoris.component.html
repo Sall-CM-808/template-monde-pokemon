@@ -1,0 +1,135 @@
+<!-- Page Favoris -->
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-6 sm:py-8 px-3 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto">
+    
+    <!-- En-tête -->
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-3">
+        <svg class="w-8 h-8 text-red-500 fill-current" viewBox="0 0 24 24">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        Mes Favoris
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400">{{ totalFavoris }} favoris au total</p>
+    </div>
+
+    <!-- Loader -->
+    @if (chargement) {
+      <app-loader message="Chargement des favoris..."></app-loader>
+    }
+
+    <!-- Contenu -->
+    @if (!chargement) {
+      <!-- Aucun favori -->
+      @if (totalFavoris === 0) {
+        <div class="text-center py-16">
+          <svg class="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">Aucun favori</h2>
+          <p class="text-gray-600 dark:text-gray-400 mb-6">Commencez à ajouter des Pokémon et des pays à vos favoris</p>
+          <div class="flex gap-4 justify-center">
+            <a routerLink="/pokemons" class="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg font-medium transition">
+              Explorer les Pokémons
+            </a>
+            <a routerLink="/pays" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+              Explorer les Pays
+            </a>
+          </div>
+        </div>
+      }
+
+      <!-- Pokémons favoris -->
+      @if (pokemonsFavoris.length > 0) {
+        <div class="mb-8">
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span>Pokémons</span>
+            <span class="text-lg font-normal text-gray-500 dark:text-gray-400">({{ pokemonsFavoris.length }})</span>
+          </h2>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            @for (p of pokemonsFavoris; track p.id) {
+              <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden hover:border-yellow-500 hover:shadow-lg transition-all duration-300 group">
+                <!-- Bouton retirer -->
+                <button (click)="retirerPokemon(p.id)"
+                        class="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-md hover:scale-110 transition-transform"
+                        aria-label="Retirer des favoris">
+                  <svg class="w-5 h-5 text-red-500 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </button>
+
+                <a [routerLink]="['/pokemons', p.id]" class="block transform hover:-translate-y-1 transition-transform">
+                  <!-- Image -->
+                  <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-3 sm:p-4">
+                    <img [src]="p.image" 
+                         [alt]="p.nom"
+                         class="w-full h-24 sm:h-28 object-contain group-hover:scale-110 transition-transform duration-300"
+                         loading="lazy"
+                         decoding="async">
+                  </div>
+                  
+                  <!-- Infos -->
+                  <div class="p-2 sm:p-3 text-center">
+                    <span class="text-xs text-gray-400">{{ formatId(p.id) }}</span>
+                    <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-yellow-600 dark:group-hover:text-yellow-400 transition">
+                      {{ p.nom }}
+                    </h3>
+                  </div>
+                </a>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Pays favoris -->
+      @if (paysFavoris.length > 0) {
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <span>Pays</span>
+            <span class="text-lg font-normal text-gray-500 dark:text-gray-400">({{ paysFavoris.length }})</span>
+          </h2>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            @for (p of paysFavoris; track p.code) {
+              <div class="relative bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden hover:border-blue-500 hover:shadow-lg transition-all duration-300 group">
+                <!-- Bouton retirer -->
+                <button (click)="retirerPays(p.code)"
+                        class="absolute top-2 right-2 z-10 p-2 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-md hover:scale-110 transition-transform"
+                        aria-label="Retirer des favoris">
+                  <svg class="w-5 h-5 text-red-500 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </button>
+
+                <a [routerLink]="['/pays', p.code]" class="block transform hover:-translate-y-1 transition-transform">
+                  <!-- Drapeau -->
+                  <div class="h-28 sm:h-32 bg-gray-100 overflow-hidden">
+                    <img [src]="p.drapeau" 
+                         [alt]="'Drapeau ' + p.nom"
+                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                         loading="lazy"
+                         decoding="async">
+                  </div>
+                  
+                  <!-- Infos -->
+                  <div class="p-3 sm:p-4">
+                    <h3 class="font-semibold text-gray-900 dark:text-white mb-1 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition">
+                      {{ p.nom }}
+                    </h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-2">{{ p.region }}</p>
+                    <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                      <span>{{ p.capitale[0] || 'N/A' }}</span>
+                      <span>{{ formatPop(p.population) }} hab.</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>

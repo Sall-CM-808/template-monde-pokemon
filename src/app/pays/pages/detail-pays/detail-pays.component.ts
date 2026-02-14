@@ -7,6 +7,7 @@ import { Pays } from '../../models/pays.model';
 import { Meteo } from '../../models/meteo.model';
 import { LoaderComponent } from '../../../shared/loader/loader.component';
 import { ErreurComponent } from '../../../shared/erreur/erreur.component';
+import { FavorisService } from '../../../shared/services/favoris.service';
 
 // Page détail d'un pays
 @Component({
@@ -19,6 +20,7 @@ export class DetailPaysComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private paysSvc = inject(PaysService);
   private meteoSvc = inject(MeteoService);
+  favorisSvc = inject(FavorisService);
 
   // Données
   pays: Pays | null = null;
@@ -93,5 +95,11 @@ export class DetailPaysComponent implements OnInit {
   // Retour à la liste
   retour(): void {
     window.history.back();
+  }
+
+  basculerFavori(): void {
+    if (this.pays) {
+      this.favorisSvc.basculerPaysFavori(this.pays.code);
+    }
   }
 }
